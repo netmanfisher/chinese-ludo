@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>飞行棋 - 小虾米游戏乐园</title>
+    <title>Chinese Ludo - Classic Board Game</title>
     <style>
         * {
             margin: 0;
@@ -22,27 +22,37 @@
             align-items: center;
         }
 
-        .home-btn {
+        .lang-switch {
             position: fixed;
             top: 20px;
             right: 20px;
-            padding: 15px 30px;
-            background: linear-gradient(135deg, #ff6b9d 0%, #ffa07a 100%);
-            color: white;
-            border: none;
-            border-radius: 30px;
-            font-size: 1.2em;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 6px 12px rgba(255, 105, 180, 0.3);
-            text-decoration: none;
             z-index: 1000;
-            transition: all 0.3s;
+            display: flex;
+            gap: 10px;
         }
 
-        .home-btn:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 8px 16px rgba(255, 105, 180, 0.4);
+        .lang-btn {
+            padding: 10px 20px;
+            background: white;
+            color: #ff69b4;
+            border: 2px solid #ff69b4;
+            border-radius: 20px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(255, 105, 180, 0.2);
+        }
+
+        .lang-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(255, 105, 180, 0.3);
+        }
+
+        .lang-btn.active {
+            background: linear-gradient(135deg, #ff6b9d 0%, #ffa07a 100%);
+            color: white;
+            border-color: transparent;
         }
 
         h1 {
@@ -509,52 +519,56 @@
     </style>
 </head>
 <body>
-    <a href="../../index.html" class="home-btn">🏠 返回游戏主页</a>
+    <!-- 语言切换按钮 -->
+    <div class="lang-switch">
+        <button class="lang-btn" data-lang="zh" onclick="switchLanguage('zh')">中文</button>
+        <button class="lang-btn active" data-lang="en" onclick="switchLanguage('en')">English</button>
+    </div>
 
     <!-- 玩家选择界面 -->
     <div class="player-select-overlay" id="playerSelectOverlay">
         <div class="player-select-modal">
-            <h2>🎲 飞行棋 🎲</h2>
-            <p style="margin-bottom: 20px; color: #666;">请选择玩家人数（2-4人）</p>
+            <h2 data-i18n="gameTitle">🎲 飞行棋 🎲</h2>
+            <p style="margin-bottom: 20px; color: #666;" data-i18n="selectPlayers">请选择玩家人数（2-4人）</p>
 
             <div class="player-options">
                 <button class="player-option-btn" data-players="2" data-colors="red,yellow">
-                    🔴🟡 双人对战<br><small>红色 vs 黄色</small>
+                    <span data-i18n="twoPlayers1">🔴🟡 双人对战<br><small>红色 vs 黄色</small></span>
                 </button>
                 <button class="player-option-btn" data-players="2" data-colors="blue,green">
-                    🔵🟢 双人对战<br><small>蓝色 vs 绿色</small>
+                    <span data-i18n="twoPlayers2">🔵🟢 双人对战<br><small>蓝色 vs 绿色</small></span>
                 </button>
                 <button class="player-option-btn" data-players="3" data-colors="red,yellow,blue">
-                    🔴🟡🔵 三人游戏<br><small>红黄蓝</small>
+                    <span data-i18n="threePlayers">🔴🟡🔵 三人游戏<br><small>红黄蓝</small></span>
                 </button>
                 <button class="player-option-btn" data-players="4" data-colors="red,green,yellow,blue">
-                    🔴🟢🟡🔵 四人游戏<br><small>全部玩家</small>
+                    <span data-i18n="fourPlayers">🔴🟢🟡🔵 四人游戏<br><small>全部玩家</small></span>
                 </button>
             </div>
 
-            <button class="start-game-btn" id="startGameBtn" disabled onclick="startGame()">开始游戏</button>
+            <button class="start-game-btn" id="startGameBtn" disabled onclick="startGame()" data-i18n="startGame">开始游戏</button>
         </div>
     </div>
 
     <!-- 游戏主界面 -->
-    <h1>🎲 飞行棋 🎲</h1>
+    <h1 data-i18n="gameTitle">🎲 飞行棋 🎲</h1>
 
     <div class="game-layout">
         <!-- 左侧面板 -->
         <div class="side-panel left">
             <!-- 黄色 - 顶部 -->
             <div class="player-dice-panel yellow" id="panel-yellow" data-color="yellow">
-                <h3>🟡 黄色玩家</h3>
+                <h3 data-i18n="yellowPlayer">🟡 黄色玩家</h3>
                 <div class="player-dice" id="dice-yellow">🎲</div>
-                <button class="roll-dice-btn" id="rollBtn-yellow" onclick="rollDice('yellow')">掷骰子</button>
+                <button class="roll-dice-btn" id="rollBtn-yellow" onclick="rollDice('yellow')" data-i18n="rollDice">掷骰子</button>
                 <div class="pieces-status" id="yellowPieces"></div>
             </div>
 
             <!-- 绿色 - 底部 -->
             <div class="player-dice-panel green" id="panel-green" data-color="green">
-                <h3>🟢 绿色玩家</h3>
+                <h3 data-i18n="greenPlayer">🟢 绿色玩家</h3>
                 <div class="player-dice" id="dice-green">🎲</div>
-                <button class="roll-dice-btn" id="rollBtn-green" onclick="rollDice('green')">掷骰子</button>
+                <button class="roll-dice-btn" id="rollBtn-green" onclick="rollDice('green')" data-i18n="rollDice">掷骰子</button>
                 <div class="pieces-status" id="greenPieces"></div>
             </div>
         </div>
@@ -566,7 +580,7 @@
                 <!-- 棋子将通过JavaScript动态添加 -->
             </div>
 
-            <div class="message-panel" id="gameMessage">
+            <div class="message-panel" id="gameMessage" data-i18n="selectPlayersToStart">
                 选择玩家开始游戏！
             </div>
         </div>
@@ -575,22 +589,91 @@
         <div class="side-panel right">
             <!-- 蓝色 - 顶部 -->
             <div class="player-dice-panel blue" id="panel-blue" data-color="blue">
-                <h3>🔵 蓝色玩家</h3>
+                <h3 data-i18n="bluePlayer">🔵 蓝色玩家</h3>
                 <div class="player-dice" id="dice-blue">🎲</div>
-                <button class="roll-dice-btn" id="rollBtn-blue" onclick="rollDice('blue')">掷骰子</button>
+                <button class="roll-dice-btn" id="rollBtn-blue" onclick="rollDice('blue')" data-i18n="rollDice">掷骰子</button>
                 <div class="pieces-status" id="bluePieces"></div>
             </div>
 
             <!-- 红色 - 底部 -->
             <div class="player-dice-panel red" id="panel-red" data-color="red">
-                <h3>🔴 红色玩家</h3>
+                <h3 data-i18n="redPlayer">🔴 红色玩家</h3>
                 <div class="player-dice" id="dice-red">🎲</div>
-                <button class="roll-dice-btn" id="rollBtn-red" onclick="rollDice('red')">掷骰子</button>
+                <button class="roll-dice-btn" id="rollBtn-red" onclick="rollDice('red')" data-i18n="rollDice">掷骰子</button>
                 <div class="pieces-status" id="redPieces"></div>
             </div>
         </div>
     </div>
 
+    <script>
+        // 国际化翻译
+        const translations = {
+            zh: {
+                gameTitle: '🎲 飞行棋 🎲',
+                selectPlayers: '请选择玩家人数（2-4人）',
+                twoPlayers1: '🔴🟡 双人对战<br><small>红色 vs 黄色</small>',
+                twoPlayers2: '🔵🟢 双人对战<br><small>蓝色 vs 绿色</small>',
+                threePlayers: '🔴🟡🔵 三人游戏<br><small>红黄蓝</small>',
+                fourPlayers: '🔴🟢🟡🔵 四人游戏<br><small>全部玩家</small>',
+                startGame: '开始游戏',
+                redPlayer: '🔴 红色玩家',
+                yellowPlayer: '🟡 黄色玩家',
+                bluePlayer: '🔵 蓝色玩家',
+                greenPlayer: '🟢 绿色玩家',
+                rollDice: '掷骰子',
+                selectPlayersToStart: '选择玩家开始游戏！'
+            },
+            en: {
+                gameTitle: '🎲 Chinese Ludo 🎲',
+                selectPlayers: 'Select number of players (2-4)',
+                twoPlayers1: '🔴🟡 2 Players<br><small>Red vs Yellow</small>',
+                twoPlayers2: '🔵🟢 2 Players<br><small>Blue vs Green</small>',
+                threePlayers: '🔴🟡🔵 3 Players<br><small>Red Yellow Blue</small>',
+                fourPlayers: '🔴🟢🟡🔵 4 Players<br><small>All Players</small>',
+                startGame: 'Start Game',
+                redPlayer: '🔴 Red Player',
+                yellowPlayer: '🟡 Yellow Player',
+                bluePlayer: '🔵 Blue Player',
+                greenPlayer: '🟢 Green Player',
+                rollDice: 'Roll Dice',
+                selectPlayersToStart: 'Select players to start!'
+            }
+        };
+
+        let currentLang = 'en'; // 默认英文
+
+        function switchLanguage(lang) {
+            currentLang = lang;
+
+            // 更新按钮状态
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.lang === lang) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // 更新所有带有 data-i18n 属性的元素
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.dataset.i18n;
+                if (translations[lang] && translations[lang][key]) {
+                    el.innerHTML = translations[lang][key];
+                }
+            });
+
+            // 更新页面标题
+            if (lang === 'en') {
+                document.title = 'Chinese Ludo - Classic Board Game';
+            } else {
+                document.title = '飞行棋 - 小虾米游戏乐园';
+            }
+        }
+
+        // 页面加载时应用默认语言
+        document.addEventListener('DOMContentLoaded', function() {
+            switchLanguage('en');
+        });
+    </script>
     <script src="ludo.js"></script>
 </body>
 </html>
