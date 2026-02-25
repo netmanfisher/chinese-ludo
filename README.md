@@ -15,6 +15,8 @@
 A complete implementation of the classic Chinese board game **飞行棋 (Fei Xing Qi)** in vanilla JavaScript. This is one of the first open-source Chinese Ludo games on GitHub.
 
 **[🎮 Play Online / 在线玩](../../)** | **[⭐ Star on GitHub](../../stargazers)**
+**https://netmanfisher.github.io/chinese-ludo/** 
+https://netmanfisher.github.io/chinese-ludo/
 
 ## 📋 What is Chinese Ludo?
 
