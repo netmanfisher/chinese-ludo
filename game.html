@@ -668,6 +668,18 @@
 
         let currentLang = 'en'; // 默认英文
 
+        // 获取翻译文本的辅助函数
+        function t(key, ...args) {
+            if (translations[currentLang] && translations[currentLang][key]) {
+                const translation = translations[currentLang][key];
+                if (typeof translation === 'function') {
+                    return translation(...args);
+                }
+                return translation;
+            }
+            return key;
+        }
+
         // 将翻译函数暴露到全局作用域，供 ludo.js 使用
         window.t = t;
         window.currentLang = currentLang;
@@ -675,7 +687,6 @@
         function switchLanguage(lang) {
             currentLang = lang;
             window.currentLang = currentLang; // 更新全局变量
-            currentLang = lang;
 
             // 更新按钮状态
             document.querySelectorAll('.lang-btn').forEach(btn => {
@@ -699,18 +710,6 @@
             } else {
                 document.title = '飞行棋 - 小虾米游戏乐园';
             }
-        }
-
-        // 获取翻译文本的辅助函数
-        function t(key, ...args) {
-            if (translations[currentLang] && translations[currentLang][key]) {
-                const translation = translations[currentLang][key];
-                if (typeof translation === 'function') {
-                    return translation(...args);
-                }
-                return translation;
-            }
-            return key;
         }
 
         // 页面加载时应用默认语言
