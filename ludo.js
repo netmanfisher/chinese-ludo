@@ -837,8 +837,13 @@ function checkWin(color) {
 // 启用当前玩家的色子按钮
 function enableCurrentPlayerDice() {
     const currentColor = getCurrentPlayerColor();
+    console.log('Enabling dice for:', currentColor);
     const rollBtn = document.getElementById(`rollBtn-${currentColor}`);
-    if (rollBtn) rollBtn.disabled = false;
+    console.log('Roll button found:', rollBtn);
+    if (rollBtn) {
+        rollBtn.disabled = false;
+        console.log('Roll button disabled state:', rollBtn.disabled);
+    }
 }
 
 // 下一个玩家
@@ -915,6 +920,12 @@ function initGame() {
     updatePiecesStatus();
     // 启用第一个玩家的色子按钮
     enableCurrentPlayerDice();
+
+    // 调试信息
+    console.log('Game initialized');
+    console.log('Active players:', gameState.activePlayers);
+    console.log('Current player index:', gameState.currentPlayerIndex);
+    console.log('Current player color:', getCurrentPlayerColor());
 }
 
 // 玩家选择逻辑
