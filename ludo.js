@@ -10,12 +10,12 @@ const COLORS = {
     green: { main: '#27ae60', light: '#d5f4e6', dark: '#229954', emoji: '🟢', name: '绿色', nameEn: 'Green' }
 };
 
-// 翻译辅助函数
+// 翻译辅助函数 - 直接使用 window.t（从 index.html 定义）
 function t(key, ...args) {
-    if (typeof window !== 'undefined' && window.t) {
+    if (typeof window !== 'undefined' && window.t && window.t !== t) {
         return window.t(key, ...args);
     }
-    // 默认返回中文
+    // 默认返回中文（fallback）
     const fallback = {
         rolledDice: (emoji, value) => `${emoji}掷出了 ${value} 点！`,
         needSixToTakeOff: '需要掷出6才能起飞',
@@ -28,7 +28,8 @@ function t(key, ...args) {
         captured: (emoji) => `⚔️ 吃掉了${emoji}的棋子！`,
         noMovable: '没有可移动的棋子',
         planeTakeOff: '飞机起飞到起点！',
-        bounceBack: (excess) => `超过终点，弹回${excess}步！↩️`
+        bounceBack: (excess) => `超过终点，弹回${excess}步！↩️`,
+        nextTurn: (emoji) => `轮到${emoji}玩家`
     };
     if (fallback[key]) {
         const fn = fallback[key];
@@ -289,7 +290,6 @@ let gameState = {
 // 获取当前玩家颜色
 function getCurrentPlayerColor() {
     if (!gameState.activePlayers || gameState.activePlayers.length === 0) {
-        console.error('No active players!');
         return null;
     }
     return gameState.activePlayers[gameState.currentPlayerIndex];
@@ -842,14 +842,11 @@ function checkWin(color) {
 function enableCurrentPlayerDice() {
     const currentColor = getCurrentPlayerColor();
     if (!currentColor) {
-        console.error('No current player color found!');
         return;
     }
     const rollBtn = document.getElementById(`rollBtn-${currentColor}`);
     if (rollBtn) {
         rollBtn.disabled = false;
-    } else {
-        console.error('Roll button not found for:', currentColor);
     }
 }
 
