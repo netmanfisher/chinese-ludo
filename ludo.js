@@ -2,44 +2,123 @@
 const boardContainer = document.querySelector('.board-container');
 const BOARD_SIZE = 600;
 
-// 颜色定义
-const COLORS = {
-    red: { main: '#e74c3c', light: '#fadbd8', dark: '#c0392b', emoji: '🔴', name: '红色', nameEn: 'Red' },
-    yellow: { main: '#f39c12', light: '#fdebd0', dark: '#d68910', emoji: '🟡', name: '黄色', nameEn: 'Yellow' },
-    blue: { main: '#3498db', light: '#d6eaf8', dark: '#2980b9', emoji: '🔵', name: '蓝色', nameEn: 'Blue' },
-    green: { main: '#27ae60', light: '#d5f4e6', dark: '#229954', emoji: '🟢', name: '绿色', nameEn: 'Green' }
+// ========== 游戏配置 ==========
+let gameSettings = {
+    language: 'zh',  // 语言：zh=中文, en=英文
+    pieceStyle: 'original'  // 棋子样式：original=原始颜色, animals=动物头像
 };
 
-// 翻译辅助函数 - 直接使用 window.t（从 index.html 定义）
-function t(key, ...args) {
-    if (typeof window !== 'undefined' && window.t && window.t !== t) {
-        return window.t(key, ...args);
-    }
-    // 默认返回中文（fallback）
-    const fallback = {
-        rolledDice: (emoji, value) => `${emoji}掷出了 ${value} 点！`,
-        needSixToTakeOff: '需要掷出6才能起飞',
-        selectPiece: (count) => `请选择棋子移动 (${count}个可选)`,
-        rolledSix: '掷出6点！再掷一次',
-        reachedFinish: '到达终点！🎉',
-        playerWins: (emoji) => `🎊 ${emoji}玩家获胜！🎊`,
-        flyingShortcut: '✈️ 飞行通道！',
-        colorJump: (emoji, name) => `${emoji}停在${name}格子上，飞跃！`,
-        captured: (emoji) => `⚔️ 吃掉了${emoji}的棋子！`,
-        noMovable: '没有可移动的棋子',
-        planeTakeOff: '飞机起飞到起点！',
-        bounceBack: (excess) => `超过终点，弹回${excess}步！↩️`,
-        nextTurn: (emoji) => `轮到${emoji}玩家`
-    };
-    if (fallback[key]) {
-        const fn = fallback[key];
-        if (typeof fn === 'function') {
-            return fn(...args);
-        }
-        return fn;
-    }
-    return key;
+// 颜色定义（原始样式）
+const COLORS_ORIGINAL = {
+    red: { main: '#e74c3c', light: '#fadbd8', dark: '#c0392b', emoji: '🔴', name_zh: '红色', name_en: 'Red' },
+    yellow: { main: '#f39c12', light: '#fdebd0', dark: '#d68910', emoji: '🟡', name_zh: '黄色', name_en: 'Yellow' },
+    blue: { main: '#3498db', light: '#d6eaf8', dark: '#2980b9', emoji: '🔵', name_zh: '蓝色', name_en: 'Blue' },
+    green: { main: '#27ae60', light: '#d5f4e6', dark: '#229954', emoji: '🟢', name_zh: '绿色', name_en: 'Green' }
+};
+
+// 动物头像样式
+const COLORS_ANIMALS = {
+    red: { main: '#e74c3c', light: '#fadbd8', dark: '#c0392b', emoji: '🦁', name_zh: '红色狮子', name_en: 'Red Lion' },
+    blue: { main: '#3498db', light: '#d6eaf8', dark: '#2980b9', emoji: '🐯', name_zh: '蓝色老虎', name_en: 'Blue Tiger' },
+    yellow: { main: '#f39c12', light: '#fdebd0', dark: '#d68910', emoji: '🐼', name_zh: '黄色熊猫', name_en: 'Yellow Panda' },
+    green: { main: '#27ae60', light: '#d5f4e6', dark: '#229954', emoji: '🐘', name_zh: '绿色大象', name_en: 'Green Elephant' }
+};
+
+// 根据设置获取颜色配置
+function getColors() {
+    return gameSettings.pieceStyle === 'animals' ? COLORS_ANIMALS : COLORS_ORIGINAL;
 }
+
+// 语言翻译
+const TRANSLATIONS = {
+    zh: {
+        gameTitle: '🎲 飞行棋 🎲',
+        selectPlayers: '请选择玩家人数（2-4人）',
+        settings: '⚙️ 游戏设置',
+        language: '语言',
+        pieceStyle: '棋子样式',
+        styleOriginal: '原始颜色',
+        styleAnimals: '动物头像',
+        startGame: '开始游戏',
+        yellowPlayer: '🟡 黄色玩家',
+        bluePlayer: '🔵 蓝色玩家',
+        redPlayer: '🔴 红色玩家',
+        greenPlayer: '🟢 绿色玩家',
+        rollDice: '掷骰子',
+        selectPlayer: '选择玩家开始游戏！',
+        planeTakeoff: '飞机起飞到起点！',
+        rollSixAgain: '掷出6点！再掷一次',
+        turnToPlayer: '轮到',
+        player: '玩家',
+       到达终点: '到达终点！🎉',
+        exceedFinish: '超过终点，弹回',
+        steps: '步！↩️',
+        triggerShortcut: '触发飞行通道！✈️',
+        colorJump: '停在',
+        colorTile: '色格子上，飞跃！✈️',
+       击落: '击落了',
+        selectPiece: '请选择要移动的棋子',
+        playerWins: '玩家获胜！🎊',
+        twoPlayer: '双人对战',
+        threePlayer: '三人游戏',
+        fourPlayer: '四人游戏',
+        allPlayers: '全部玩家'
+    },
+    en: {
+        gameTitle: '🎲 Ludo Game 🎲',
+        selectPlayers: 'Select number of players (2-4)',
+        settings: '⚙️ Game Settings',
+        language: 'Language',
+        pieceStyle: 'Piece Style',
+        styleOriginal: 'Original Colors',
+        styleAnimals: 'Animal Avatars',
+        startGame: 'Start Game',
+        yellowPlayer: '🟡 Yellow Player',
+        bluePlayer: '🔵 Blue Player',
+        redPlayer: '🔴 Red Player',
+        greenPlayer: '🟢 Green Player',
+        rollDice: 'Roll Dice',
+        selectPlayer: 'Select players to start!',
+        planeTakeoff: 'Plane takes off!',
+        rollSixAgain: 'Rolled 6! Roll again',
+        turnToPlayer: 'Turn',
+        player: 'Player',
+       到达终点: 'Reached the finish! 🎉',
+        exceedFinish: 'Exceeded finish, bounce back',
+        steps: ' steps! ↩️',
+        triggerShortcut: 'Triggered shortcut! ✈️',
+        colorJump: 'Landed on',
+        colorTile: 'tile, jump! ✈️',
+       击落: 'captured',
+        selectPiece: 'Select a piece to move',
+        playerWins: 'player wins! 🎊',
+        twoPlayer: '2 Players',
+        threePlayer: '3 Players',
+        fourPlayer: '4 Players',
+        allPlayers: 'All Players'
+    }
+};
+
+// 获取翻译文本
+function t(key) {
+    return TRANSLATIONS[gameSettings.language][key] || key;
+}
+
+// 动态获取 COLORS 对象
+const COLORS = new Proxy({}, {
+    get: function(target, prop) {
+        const colors = getColors();
+        if (prop in colors) {
+            const color = colors[prop];
+            // 添加 name 属性，根据语言返回对应名称
+            return {
+                ...color,
+                name: gameSettings.language === 'en' ? color.name_en : color.name_zh
+            };
+        }
+        return undefined;
+    }
+});
 
 // 所有玩家颜色列表（用于布局和初始化）
 const ALL_COLORS = ['red', 'yellow', 'blue', 'green'];
@@ -289,9 +368,6 @@ let gameState = {
 
 // 获取当前玩家颜色
 function getCurrentPlayerColor() {
-    if (!gameState.activePlayers || gameState.activePlayers.length === 0) {
-        return null;
-    }
     return gameState.activePlayers[gameState.currentPlayerIndex];
 }
 
@@ -384,8 +460,16 @@ function getPieceCoordinates(color, pieceIndex) {
 function createPieceElement(color, index) {
     const piece = document.createElement('div');
     piece.className = `piece ${color}`;
+
+    // 如果使用动物头像样式，添加 animals 类
+    if (gameSettings.pieceStyle === 'animals') {
+        piece.classList.add('animals');
+        piece.textContent = COLORS[color].emoji;  // 显示动物头像
+    } else {
+        piece.textContent = index + 1;  // 显示数字
+    }
+
     piece.id = `piece-${color}-${index}`;
-    piece.textContent = index + 1;
     piece.onclick = () => handlePieceClick(color, index);
 
     const coords = getPieceCoordinates(color, index);
@@ -404,16 +488,46 @@ function createPieceElement(color, index) {
 // 移动棋子到新位置
 function movePieceTo(color, index, animate = true) {
     const piece = gameState.pieces[color][index];
-    const coords = getPieceCoordinates(color, index);
+    let coords = getPieceCoordinates(color, index);
     const element = gameState.pieceElements[`${color}-${index}`];
 
     if (animate) {
         element.classList.add('moving');
     }
 
-    // 直接使用用户标注的坐标，使用transform居中
-    element.style.left = coords.x + 'px';
-    element.style.top = coords.y + 'px';
+    // 检查同一位置是否有其他棋子，如果有则稍微偏移
+    let offsetX = 0;
+    let offsetY = 0;
+    let overlapCount = 0;
+
+    gameState.activePlayers.forEach(otherColor => {
+        gameState.pieces[otherColor].forEach((otherPiece, otherIndex) => {
+            if (otherPiece.position === -1 || otherPiece.finished) return;
+
+            // 跳过自己
+            if (otherColor === color && otherIndex === index) return;
+
+            const otherCoords = getPieceCoordinates(otherColor, otherIndex);
+
+            // 检查是否在同一位置
+            if (otherCoords.x === coords.x && otherCoords.y === coords.y) {
+                overlapCount++;
+                // 每多3个棋子重叠（不太可能更多）
+                if (overlapCount <= 3) {
+                    // 根据重叠数量计算偏移
+                    const offset = overlapCount * 6; // 6px偏移
+                    const angle = (overlapCount - 1) * (Math.PI / 4); // 45度间隔
+
+                    offsetX = Math.cos(angle) * offset;
+                    offsetY = Math.sin(angle) * offset;
+                }
+            }
+        });
+    });
+
+    // 应用坐标和偏移
+    element.style.left = (coords.x + offsetX) + 'px';
+    element.style.top = (coords.y + offsetY) + 'px';
     element.style.transform = 'translate(-50%, -50%)';
 
     if (piece.finished) {
@@ -465,7 +579,7 @@ function rollDice(color) {
         dice.classList.remove('rolling');
         gameState.diceRolled = true;
 
-        updateMessage(t('rolledDice', COLORS[currentPlayerColor].emoji, gameState.diceValue));
+        updateMessage(`${COLORS[currentPlayerColor].emoji}掷出了 ${gameState.diceValue} 点！`);
 
         setTimeout(() => checkMovablePieces(), 300);
     }, 500);
@@ -494,12 +608,15 @@ function checkMovablePieces() {
     });
 
     if (movable.length === 0) {
-        updateMessage(t('noMovable'));
+        updateMessage(gameSettings.language === 'en' ? 'No movable pieces' : '没有可移动的棋子');
         setTimeout(nextPlayer, 1500);
     } else if (movable.length === 1) {
         setTimeout(() => movePiece(movable[0]), 500);
     } else {
-        updateMessage(t('selectPiece', movable.length));
+        const msg = gameSettings.language === 'en'
+            ? `Select a piece to move (${movable.length} available)`
+            : `请选择棋子移动 (${movable.length}个可选)`;
+        updateMessage(msg);
         movable.forEach(index => {
             const element = gameState.pieceElements[`${currentColor}-${index}`];
             if (element) element.classList.add('selectable');
@@ -528,7 +645,7 @@ function movePiece(pieceIndex) {
     if (piece.position === -1) {
         piece.position = 0;
         movePieceTo(currentColor, pieceIndex);
-        updateMessage(t('planeTakeOff'));
+        updateMessage(gameSettings.language === 'en' ? 'Plane takes off!' : '飞机起飞到起点！');
         updatePiecesStatus();
 
         setTimeout(() => {
@@ -536,7 +653,7 @@ function movePiece(pieceIndex) {
             if (gameState.diceValue === 6 && !gameState.gameOver) {
                 gameState.diceRolled = false;
                 enableCurrentPlayerDice();
-                updateMessage(t('rolledSix'));
+                updateMessage(gameSettings.language === 'en' ? 'Rolled 6! Roll again' : '掷出6点！再掷一次');
             } else if (!gameState.gameOver) {
                 setTimeout(nextPlayer, 500);
             }
@@ -576,14 +693,14 @@ function movePiece(pieceIndex) {
             piece.position = newPosition;
             piece.finished = true;
             movePieceTo(currentColor, pieceIndex);
-            updateMessage(t('reachedFinish'));
+            updateMessage(gameSettings.language === 'en' ? 'Reached the finish! 🎉' : '到达终点！🎉');
             updatePiecesStatus();
             checkWin(currentColor);
 
             if (gameState.diceValue === 6 && !gameState.gameOver) {
                 gameState.diceRolled = false;
                 enableCurrentPlayerDice();
-                updateMessage(t('rolledSix'));
+                updateMessage(gameSettings.language === 'en' ? 'Rolled 6! Roll again' : '掷出6点！再掷一次');
             } else if (!gameState.gameOver) {
                 setTimeout(nextPlayer, 1000);
             }
@@ -598,7 +715,9 @@ function movePiece(pieceIndex) {
             piece.position = stepsToEntry + 1 + bounceBackStepIndex;
 
             movePieceTo(currentColor, pieceIndex);
-            updateMessage(t('bounceBack', excess));
+            updateMessage(gameSettings.language === 'en'
+                ? `Exceeded finish, bounce back ${excess} steps! ↩️`
+                : `超过终点，弹回${excess}步！↩️`);
             updatePiecesStatus();
 
             setTimeout(() => {
@@ -607,7 +726,7 @@ function movePiece(pieceIndex) {
                 if (gameState.diceValue === 6 && !gameState.gameOver) {
                     gameState.diceRolled = false;
                     enableCurrentPlayerDice();
-                    updateMessage(t('rolledSix'));
+                    updateMessage(gameSettings.language === 'en' ? 'Rolled 6! Roll again' : '掷出6点！再掷一次');
                 } else if (!gameState.gameOver) {
                     setTimeout(nextPlayer, 500);
                 }
@@ -628,10 +747,9 @@ function movePiece(pieceIndex) {
         if (shortcutResult.shouldFly) {
             // 触发飞行
             if (shortcutResult.flyType === 'shortcut') {
-                updateMessage(`${COLORS[currentColor].emoji} ${t('flyingShortcut')}`);
+                updateMessage(`${COLORS[currentColor].emoji}${gameSettings.language === 'en' ? 'Triggered shortcut!' : '触发飞行通道！'}✈️`);
             } else if (shortcutResult.flyType === 'color') {
-                const colorName = currentLang === 'en' ? COLORS[currentColor].nameEn : COLORS[currentColor].name;
-                updateMessage(t('colorJump', COLORS[currentColor].emoji, colorName));
+                updateMessage(`${COLORS[currentColor].emoji}停在${COLORS[currentColor].name}格子上，飞跃！✈️`);
             }
 
             setTimeout(() => {
@@ -648,7 +766,7 @@ function movePiece(pieceIndex) {
                         const secondCheck = checkShortcut(currentColor, pieceIndex);
                         if (secondCheck.shouldFly && secondCheck.flyType === 'shortcut') {
                             // 触发飞行通道
-                            updateMessage(`${COLORS[currentColor].emoji} ${t('flyingShortcut')}`);
+                            updateMessage(`${COLORS[currentColor].emoji}${gameSettings.language === 'en' ? 'Triggered shortcut!' : '触发飞行通道！'}✈️`);
                             setTimeout(() => {
                                 piece.position = secondCheck.newPosition;
                                 movePieceTo(currentColor, pieceIndex);
@@ -658,7 +776,7 @@ function movePiece(pieceIndex) {
                                     if (gameState.diceValue === 6 && !gameState.gameOver) {
                                         gameState.diceRolled = false;
                                         enableCurrentPlayerDice();
-                                        updateMessage(t('rolledSix'));
+                                        updateMessage(gameSettings.language === 'en' ? 'Rolled 6! Roll again' : '掷出6点！再掷一次');
                                     } else if (!gameState.gameOver) {
                                         setTimeout(nextPlayer, 500);
                                     }
@@ -671,7 +789,7 @@ function movePiece(pieceIndex) {
                                 if (gameState.diceValue === 6 && !gameState.gameOver) {
                                     gameState.diceRolled = false;
                                     enableCurrentPlayerDice();
-                                    updateMessage(t('rolledSix'));
+                                    updateMessage(gameSettings.language === 'en' ? 'Rolled 6! Roll again' : '掷出6点！再掷一次');
                                 } else if (!gameState.gameOver) {
                                     setTimeout(nextPlayer, 500);
                                 }
@@ -685,7 +803,7 @@ function movePiece(pieceIndex) {
                         if (gameState.diceValue === 6 && !gameState.gameOver) {
                             gameState.diceRolled = false;
                             enableCurrentPlayerDice();
-                            updateMessage('掷出6点！再掷一次');
+                            updateMessage(gameSettings.language === 'en' ? 'Rolled 6! Roll again' : '掷出6点！再掷一次');
                         } else if (!gameState.gameOver) {
                             setTimeout(nextPlayer, 500);
                         }
@@ -699,7 +817,7 @@ function movePiece(pieceIndex) {
             if (gameState.diceValue === 6 && !gameState.gameOver) {
                 gameState.diceRolled = false;
                 enableCurrentPlayerDice();
-                updateMessage('掷出6点！再掷一次');
+                updateMessage(gameSettings.language === 'en' ? 'Rolled 6! Roll again' : '掷出6点！再掷一次');
             } else if (!gameState.gameOver) {
                 setTimeout(nextPlayer, 500);
             }
@@ -804,6 +922,9 @@ function checkCapture(color, pieceIndex) {
         gameState.pieces[playerColor].forEach((otherPiece, idx) => {
             if (otherPiece.position === -1 || otherPiece.finished) return;
 
+            // 起飞点的棋子不能被击落
+            if (otherPiece.position === 0) return;
+
             // 终点通道上的棋子不能被击落
             if (isInFinishStretch(playerColor, otherPiece.position)) return;
 
@@ -812,7 +933,7 @@ function checkCapture(color, pieceIndex) {
             if (currentIndex === otherIndex) {
                 otherPiece.position = -1;
                 movePieceTo(playerColor, idx, false);
-                updateMessage(`${COLORS[color].emoji} ${t('captured', COLORS[playerColor].emoji)}`);
+                updateMessage(`${COLORS[color].emoji}${gameSettings.language === 'en' ? 'captured' : '击落了'}${COLORS[playerColor].emoji}！`);
                 updatePiecesStatus();
             }
         });
@@ -824,7 +945,10 @@ function checkWin(color) {
     const allFinished = gameState.pieces[color].every(p => p.finished);
     if (allFinished) {
         gameState.gameOver = true;
-        updateMessage(t('playerWins', COLORS[color].emoji));
+        const winMsg = gameSettings.language === 'en'
+            ? `🎊 ${COLORS[color].emoji}player wins! 🎊`
+            : `🎊 ${COLORS[color].emoji}玩家获胜！🎊`;
+        updateMessage(winMsg);
 
         // 禁用所有色子按钮
         gameState.activePlayers.forEach(playerColor => {
@@ -841,13 +965,8 @@ function checkWin(color) {
 // 启用当前玩家的色子按钮
 function enableCurrentPlayerDice() {
     const currentColor = getCurrentPlayerColor();
-    if (!currentColor) {
-        return;
-    }
     const rollBtn = document.getElementById(`rollBtn-${currentColor}`);
-    if (rollBtn) {
-        rollBtn.disabled = false;
-    }
+    if (rollBtn) rollBtn.disabled = false;
 }
 
 // 下一个玩家
@@ -862,7 +981,10 @@ function nextPlayer() {
     updatePiecesStatus();
 
     const currentColor = getCurrentPlayerColor();
-    updateMessage(t('nextTurn', COLORS[currentColor].emoji));
+    const turnMsg = gameSettings.language === 'en'
+        ? `Turn: ${COLORS[currentColor].emoji}`
+        : `轮到${COLORS[currentColor].emoji}玩家`;
+    updateMessage(turnMsg);
 
     // 启用当前玩家的色子按钮
     enableCurrentPlayerDice();
@@ -872,17 +994,15 @@ function nextPlayer() {
 function updateCurrentPlayer() {
     const currentColor = getCurrentPlayerColor();
 
-    // 只移除参与游戏玩家面板的 active 状态
-    gameState.activePlayers.forEach(color => {
+    // 移除所有面板的 active 状态
+    ALL_COLORS.forEach(color => {
         const panel = document.getElementById(`panel-${color}`);
         if (panel) panel.classList.remove('active');
     });
 
     // 激活当前玩家的面板
     const currentPanel = document.getElementById(`panel-${currentColor}`);
-    if (currentPanel) {
-        currentPanel.classList.add('active');
-    }
+    if (currentPanel) currentPanel.classList.add('active');
 }
 
 // 更新消息
@@ -921,11 +1041,14 @@ function updatePiecesStatus() {
 
 // 初始化游戏
 function initGame() {
+    updateLanguage();  // 更新界面语言
     initializePieces();
     updateCurrentPlayer();
     updatePiecesStatus();
-    // 启用第一个玩家的色子按钮
-    enableCurrentPlayerDice();
+
+    // 更新初始消息
+    const initialMsg = gameSettings.language === 'en' ? 'Game started!' : '游戏开始！';
+    updateMessage(initialMsg);
 }
 
 // 玩家选择逻辑
@@ -935,7 +1058,10 @@ let selectedPlayerConfig = null;
 function initPlayerSelect() {
     const buttons = document.querySelectorAll('.player-option-btn');
     const startBtn = document.getElementById('startGameBtn');
+    const languageSelect = document.getElementById('languageSelect');
+    const pieceStyleSelect = document.getElementById('pieceStyleSelect');
 
+    // 玩家选择按钮事件
     buttons.forEach(btn => {
         btn.addEventListener('click', () => {
             // 移除其他按钮的选中状态
@@ -954,6 +1080,92 @@ function initPlayerSelect() {
             startBtn.disabled = false;
         });
     });
+
+    // 语言切换事件
+    languageSelect.addEventListener('change', (e) => {
+        gameSettings.language = e.target.value;
+        updateLanguage();
+    });
+
+    // 棋子样式切换事件
+    pieceStyleSelect.addEventListener('change', (e) => {
+        gameSettings.pieceStyle = e.target.value;
+    });
+}
+
+// 更新界面语言
+function updateLanguage() {
+    // 更新标题
+    const gameTitle = document.getElementById('gameTitle');
+    if (gameTitle) gameTitle.textContent = t('gameTitle');
+
+    // 更新提示文本
+    const selectPlayersText = document.getElementById('selectPlayersText');
+    if (selectPlayersText) selectPlayersText.textContent = t('selectPlayers');
+
+    const settingsTitle = document.getElementById('settingsTitle');
+    if (settingsTitle) settingsTitle.textContent = t('settings');
+
+    const languageLabel = document.getElementById('languageLabel');
+    if (languageLabel) languageLabel.textContent = t('language') + ':';
+
+    const pieceStyleLabel = document.getElementById('pieceStyleLabel');
+    if (pieceStyleLabel) pieceStyleLabel.textContent = t('pieceStyle') + ':';
+
+    // 更新开始按钮
+    const startBtn = document.getElementById('startGameBtn');
+    if (startBtn) startBtn.textContent = t('startGame');
+
+    // 更新玩家选择按钮
+    const playerBtns = document.querySelectorAll('.player-option-btn');
+    playerBtns.forEach(btn => {
+        const playerCount = parseInt(btn.dataset.players);
+        const colors = btn.dataset.colors;
+        let mainText, subText;
+        let emojis = '';
+
+        // 提取现有的emoji
+        const currentContent = btn.innerHTML;
+        const emojiMatch = currentContent.match(/[🔴🟡🔵🟢]+/g);
+        if (emojiMatch) {
+            emojis = emojiMatch[0];
+        }
+
+        if (playerCount === 2) {
+            mainText = t('twoPlayer');
+            if (colors === 'red,yellow') {
+                subText = gameSettings.language === 'en' ? 'Red vs Yellow' : '红色 vs 黄色';
+            } else if (colors === 'blue,green') {
+                subText = gameSettings.language === 'en' ? 'Blue vs Green' : '蓝色 vs 绿色';
+            }
+        } else if (playerCount === 3) {
+            mainText = t('threePlayer');
+            subText = gameSettings.language === 'en' ? 'Red, Yellow, Blue' : '红黄蓝';
+        } else if (playerCount === 4) {
+            mainText = t('fourPlayer');
+            subText = t('allPlayers');
+        }
+
+        // 更新按钮文本
+        btn.innerHTML = `${emojis} ${mainText}<br><small>${subText}</small>`;
+    });
+
+    // 更新玩家面板
+    ALL_COLORS.forEach(color => {
+        const panel = document.getElementById(`panel-${color}`);
+        if (panel) {
+            const h3 = panel.querySelector('h3');
+            const btn = panel.querySelector('.roll-dice-btn');
+            if (h3) h3.textContent = t(color + 'Player');
+            if (btn) btn.textContent = t('rollDice');
+        }
+    });
+
+    // 更新游戏消息
+    const gameMessage = document.getElementById('gameMessage');
+    if (gameMessage && gameMessage.textContent === '选择玩家开始游戏！') {
+        gameMessage.textContent = t('selectPlayer');
+    }
 }
 
 // 开始游戏
